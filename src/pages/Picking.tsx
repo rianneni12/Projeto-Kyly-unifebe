@@ -48,6 +48,10 @@ export function PickingPage() {
       const normalized = (() => {
         const c = code.trim().toUpperCase()
         if (c.includes('1000080')) return c.replace('1000080', '1000123')
+        const m = c.match(/(\d{7})/)
+        if (m && (c === m[1] || c.startsWith('SKU'))) {
+          return `${m[1]}-${Date.now()}-${Math.floor(Math.random() * 1000)}`
+        }
         return code.trim()
       })()
       setFlash({ mode: 'none' })
