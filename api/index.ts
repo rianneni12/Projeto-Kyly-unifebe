@@ -45,6 +45,14 @@ function createApp() {
     }),
   )
   app.use(express.json({ limit: '1mb' }))
+  app.use((req, _res, next) => {
+    const url = req.url ?? ''
+    if (!url.startsWith('/api/')) {
+      if (url === '/api' || url.startsWith('/api?')) return next()
+      req.url = `/api${url.startsWith('/') ? '' : '/'}${url}`
+    }
+    next()
+  })
 
   app.get('/api/health', async (_req, res) => {
     res.json({ ok: true, data: { status: 'ok' } } satisfies ApiResult<{ status: 'ok' }>)

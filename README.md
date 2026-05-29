@@ -23,8 +23,8 @@ npm install
 npm run dev
 ```
 
-- Web: http://localhost:5173
-- API: http://localhost:3001/api/health
+- Web: http://127.0.0.1:5173
+- API: http://127.0.0.1:3001/api/health
 
 Se o PowerShell bloquear `npm.ps1`, use `npm.cmd`:
 

@@ -7,7 +7,7 @@
     "dev": "concurrently -n api,web -c \"cyan,magenta\" \"npm run dev:api\" \"npm run dev:web\"",
     "dev:web": "vite",
     "dev:api": "tsx watch server/dev.ts",
-    "build": "tsc -b && vite build",
+    "build": "node ./node_modules/typescript/bin/tsc -b && node ./node_modules/vite/bin/vite.js build",
     "lint": "eslint .",
     "preview": "concurrently -n api,web -c \"cyan,magenta\" \"npm run preview:api\" \"npm run preview:web\"",
     "preview:web": "vite preview --host",
