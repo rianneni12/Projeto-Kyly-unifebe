@@ -168,9 +168,8 @@ function isDemoPapeleta(code: string) {
 function parseDemoSku(code: string): string | null {
   const raw = code.trim().toUpperCase()
   if (!raw) return null
-  const c = raw.startsWith('SKU') ? raw.slice(3) : raw
-  const ref = c.replace(/\D+/g, '')
-  return ref.length ? ref : null
+  const m = raw.match(/(\d{7})/)
+  return m?.[1] ?? null
 }
 
 async function httpFetch<T>(path: string, init?: RequestInit): Promise<T> {
@@ -267,11 +266,6 @@ export const api = {
       saveDemoState(state)
       throw new Error('SKU não pertence à caixa.')
     }
-    if (state.box.usedCodes[body.code.trim().toUpperCase()]) {
-      state.box.erros += 1
-      saveDemoState(state)
-      throw new Error('Peça já utilizada.')
-    }
     const item = state.box.itens.find((i) => i.skuRef === ref) ?? null
     if (!item || item.status === 'EM_FALTA') {
       state.box.erros += 1
@@ -284,7 +278,6 @@ export const api = {
       throw new Error('Peça já utilizada.')
     }
 
-    state.box.usedCodes[body.code.trim().toUpperCase()] = true
     item.qtd_picked += 1
     if (item.qtd_picked >= item.qtd_requerida) item.status = 'CONCLUIDO'
     const view = demoBoxView(state)
