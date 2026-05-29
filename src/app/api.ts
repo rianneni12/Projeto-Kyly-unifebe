@@ -67,6 +67,13 @@ function saveDemoState(state: DemoState) {
   }
 }
 
+function resetDemoState(): DemoState {
+  const state = createDemoState()
+  setDemoEnabled(true)
+  saveDemoState(state)
+  return state
+}
+
 function createDemoState(): DemoState {
   const supervisor: SessionMe['supervisor'] = { id: 1, nome: 'Supervisor Demo', tipo: 'SUPERVISOR' }
   const operador: SessionMe['operador'] = { id: 2, nome: 'Colaborador Demo', tipo: 'OPERADOR' }
@@ -80,7 +87,7 @@ function createDemoState(): DemoState {
       cor: 'PRETO',
       tamanho: 'M',
       descricao: 'Camiseta Básica',
-      qtd_requerida: 2,
+      qtd_requerida: 1,
       qtd_picked: 0,
       status: 'PENDENTE',
       ordem: 1,
@@ -204,9 +211,8 @@ export const api = {
   },
   login: async (body: { supervisorCode: string; operatorCode: string }) => {
     const demo = isDemoSupervisorCode(body.supervisorCode) && isDemoOperadorCode(body.operatorCode)
-    if (demo && isDemoEnabled()) {
-      const state = loadDemoState()
-      saveDemoState(state)
+    if (demo) {
+      const state = resetDemoState()
       return { token: state.session.token, supervisor: state.session.supervisor, operador: state.session.operador }
     }
     try {
@@ -214,14 +220,9 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(body),
       })
-      if (demo) setDemoEnabled(false)
       return r
     } catch (e) {
-      if (!demo) throw e
-      setDemoEnabled(true)
-      const state = loadDemoState()
-      saveDemoState(state)
-      return { token: state.session.token, supervisor: state.session.supervisor, operador: state.session.operador }
+      throw e
     }
   },
   me: async () => {
@@ -234,23 +235,15 @@ export const api = {
   },
   openBox: async (body: { papeletaCode: string }) => {
     const demo = isDemoPapeleta(body.papeletaCode)
-    if (demo && isDemoEnabled()) {
-      const state = loadDemoState()
-      state.box.papeleta = 'CX-2026-000189'
-      saveDemoState(state)
+    if (demo) {
+      const state = resetDemoState()
       return demoBoxView(state)
     }
     try {
       const r = await httpFetch<BoxView>('/api/boxes/open', { method: 'POST', body: JSON.stringify(body) })
-      if (demo) setDemoEnabled(false)
       return r
     } catch (e) {
-      if (!demo) throw e
-      setDemoEnabled(true)
-      const state = loadDemoState()
-      state.box.papeleta = 'CX-2026-000189'
-      saveDemoState(state)
-      return demoBoxView(state)
+      throw e
     }
   },
   scanPiece: async (body: { boxId: number; code: string }) => {
